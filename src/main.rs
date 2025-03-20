@@ -1,5 +1,4 @@
 use std::env;
-use std::process::exit;
 use log::LogController;
 use mathutils::Averages;
 use color_eyre::Result;
@@ -26,10 +25,14 @@ fn main() -> Result<()>{
         total_average: 0.0
     };
 
+    //TODO: create an app controller to hold all state
+
     let terminal = ratatui::init();
     let result = display::run(terminal);
     ratatui::restore();
     result
+
+    //the following needs to be moved to "business logic" structs
 
     //match sleep_log.read_file(data_path) {
     //    Ok(()) => println!("read successfully"),
