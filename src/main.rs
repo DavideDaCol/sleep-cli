@@ -1,12 +1,17 @@
 use std::env;
-//use std::fs;
 use std::process::exit;
 use log::LogController;
 use mathutils::Averages;
-use std::io;
+use color_eyre::Result;
+
+//rust modules
 pub mod log;
 pub mod mathutils;
-fn main() -> io::Result<()>{
+pub mod display;
+
+fn main() -> Result<()>{
+    color_eyre::install()?;
+
     let args: Vec<String> = env::args().collect();
 
     let data_path = &args[1];
@@ -21,15 +26,20 @@ fn main() -> io::Result<()>{
         total_average: 0.0
     };
 
-    match sleep_log.read_file(data_path) {
-        Ok(()) => println!("read successfully"),
-        Err(_) => exit(1)
-    }
+    let terminal = ratatui::init();
+    let result = display::run(terminal);
+    ratatui::restore();
+    result
 
-    sleep_log.print_data();
+    //match sleep_log.read_file(data_path) {
+    //    Ok(()) => println!("read successfully"),
+    //    Err(_) => exit(1)
+    //}
 
-    calc.calc_averages(sleep_log.hours_slept);
-    calc.print_all();
+    //sleep_log.print_data();
+
+    //calc.calc_averages(sleep_log.hours_slept);
+    //calc.print_all();
 
     //let mut _output_file = fs::File::create(".///rolling_average.txt").unwrap();
 
@@ -42,5 +52,5 @@ fn main() -> io::Result<()>{
 
     //fs::write("./rolling_average.txt", buffer_out).//expect("invalid output data");
 
-    Ok(())
+    //Ok(())
 }
