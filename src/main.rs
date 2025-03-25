@@ -1,7 +1,9 @@
 use std::env;
+use display::TerminalDisplay;
 use log::LogController;
 use mathutils::Averages;
 use color_eyre::Result;
+use ratatui::widgets::ScrollbarState;
 
 //rust modules
 pub mod log;
@@ -15,29 +17,33 @@ fn main() -> Result<()>{
 
     let data_path = &args[1];
 
-    let mut sleep_log = LogController {
-        hours_slept: Vec::<f64>::new(),
-        line_amount: 0
-    };
+    let mut sleep_log = LogController::new();
+
+    sleep_log.read_file(data_path).expect("input file cannot be read");
+
+    let total_lines = sleep_log.line_amount.max(0) as usize;
 
     let mut calc = Averages{
         rolling_average: Vec::new(),
         total_average: 0.0
     };
 
+    let display = TerminalDisplay {
+        app_log: sleep_log,
+        app_calc: calc,
+        valid_state: true,
+        vertical_scroll_state: ScrollbarState::new(total_lines),
+        vertical_scroll: 0
+    };
+
     //TODO: create an app controller to hold all state
 
     let terminal = ratatui::init();
-    let result = display::run(terminal);
+    let result = display.run(terminal);
     ratatui::restore();
     result
 
     //the following needs to be moved to "business logic" structs
-
-    //match sleep_log.read_file(data_path) {
-    //    Ok(()) => println!("read successfully"),
-    //    Err(_) => exit(1)
-    //}
 
     //sleep_log.print_data();
 
